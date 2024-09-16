@@ -1,0 +1,9 @@
+Flask==2.3.3
+ollama==0.3.2
+sqlalchemy==2.0.16
+beautifulsoup4==4.12.2
+requests==2.31.0
+logging==0.5.1.2
+fake_useragent==1.2.2
+nltk==3.8.1
+psutil==5.9.4
