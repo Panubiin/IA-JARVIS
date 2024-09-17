@@ -52,83 +52,7 @@ class AssistenteAI:
         self.ua = UserAgent()
         self.palavras_irrelevantes = set(stopwords.words('portuguese'))
         self.sessao_web = requests.Session()
-        self.sessao_web.headers.update({'User-Agent': self.ua.random})
-
-    def verificar_recursos_e_otimizar(self):
-        uso_cpu = psutil.cpu_percent(interval=1)
-        uso_memoria = psutil.virtual_memory().percent
-        
-        print(f"Uso de CPU: {uso_cpu}%")
-        print(f"Uso de Memória: {uso_memoria}%")
-
-        if uso_cpu > 70 or uso_memoria > 80:
-            print("Alerta: Recursos elevados! Ajustando desempenho.")
-            return "reduzir"
-        else:
-            return "normal"
-
-    # Função que realiza uma tarefa com base no nível de ajuste
-    def tarefa_complexa(self, nivel_ajuste="normal"):
-        if nivel_ajuste == "reduzir":
-            print("Executando versão otimizada da função.")
-            for _ in range(1000000):  # Versão otimizada
-                pass
-        else:
-            print("Executando versão completa da função.")
-            for _ in range(10000000):  # Versão completa
-                pass
-
-    # Função de throttle que aplica uma pausa baseada no uso de CPU
-    def throttle_based_on_cpu(self):
-        while True:
-            uso_cpu = psutil.cpu_percent(interval=1)
-            if uso_cpu > 80:
-                print("Uso de CPU alto! Aplicando throttle...")
-                time.sleep(2)  # Pausa para reduzir a carga no sistema
-            else:
-                print("CPU estável. Continuando operações.")
-            # Coloque aqui o código que você deseja executar continuamente
-
-    # Função do trabalhador para a fila de processamento
-    def worker(self, q):
-        while True:
-            tarefa = q.get()
-            if tarefa is None:
-                break
-            tarefa()  # Executa a tarefa
-            q.task_done()
-
-    # Configuração da fila e das threads
-    def configurar_threads(self):
-        q = Queue(maxsize=5)  # Limita a fila a 5 tarefas
-        threads = []
-        for _ in range(3):  # Três threads de trabalho
-            t = Thread(target=self.worker, args=(q,))
-            t.start()
-            threads.append(t)
-        return q, threads
-
-    def processar_tarefas(self):
-        q, threads = self.configurar_threads()
-
-        while True:
-            ajuste = self.verificar_recursos_e_otimizar()  # Verifica uso de CPU/Memória
-            self.tarefa_complexa(ajuste)  # Executa a tarefa com ajuste dinâmico
-            self.throttle_based_on_cpu()  # Aplica throttle baseado no uso de CPU
-            
-            # Adiciona tarefas à fila
-            for _ in range(10):  # Se tentar adicionar mais de 5, ele irá aguardar
-                q.put(lambda: print("Processando tarefa"))
-
-            q.join()  # Espera até que todas as tarefas sejam concluídas
-
-            # Finaliza as threads
-            for t in threads:
-                q.put(None)
-            for t in threads:
-                t.join()
-            
-            time.sleep(5)  # Intervalo de tempo entre verificações     
+        self.sessao_web.headers.update({'User-Agent': self.ua.random})    
 
     def carregar_memoria(self):
         memoria = self.session.query(Memoria).filter_by(id='default').first()
@@ -255,19 +179,6 @@ class AssistenteAI:
 
         self.transcricao_completa.append({"role": "assistant", "content": full_text})
         return full_text
-
-    def abrir_app_ou_site(self, texto_usuario):  
-        # Definindo o prompt para ser analisado pela IA
-        prompt_abrir = f"""  
-        Analise o seguinte texto do usuário: "{texto_usuario}"  
-        
-        1. Determine se é uma mensagem normal ou uma solicitação de abrir um app.  
-        2. Determine o nome do aplicativo que deve ser aberto.  
-        3. Execute a abertura do aplicativo.  
-        
-        Responda no formato:  
-        Ação: [ação]  
-        """  
         
         # Certifique-se de que a variável resposta_ia está definida
         resposta_ia = self.gerar_resposta_ia(prompt_abrir)
